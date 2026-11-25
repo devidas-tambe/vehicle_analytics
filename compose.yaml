@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vehicles
+      POSTGRES_USER: vehicle
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vehicle_dev}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - vehicle_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vehicle -d vehicles"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://vehicle:${POSTGRES_PASSWORD:-vehicle_dev}@db:5432/vehicles
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      - api
+
+  mediamtx:
+    image: bluenviron/mediamtx:1
+    environment:
+      MTX_RTSPTRANSPORTS: tcp
+    ports:
+      - "127.0.0.1:8554:8554"
+      - "127.0.0.1:8888:8888"
+
+  demo:
+    profiles: [demo]
+    build: ./backend
+    command: ["python", "demo.py"]
+    environment:
+      DATABASE_URL: postgresql://vehicle:${POSTGRES_PASSWORD:-vehicle_dev}@db:5432/vehicles
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  vehicle_data:

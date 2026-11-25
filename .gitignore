@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+.venv-win/
+node_modules/
+dist/
+*.pt
+*.mp4
+*.db
+.pytest_cache/
+*.engine
+models/*.onnx
+vision/generated/

@@ -1,0 +1,8 @@
+# Install CPU PyTorch first if using Windows CPU:
+# pip install torch==2.6.0 torchvision==0.21.0 --index-url https://download.pytorch.org/whl/cpu
+ultralytics==8.3.161
+opencv-python==4.11.0.86
+numpy==1.26.4
+lap==0.5.12
+psycopg[binary]==3.2.9
+onnx==1.17.0
